@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EventMap - MVP Skeleton</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        .event-panel { 
+            position: absolute; 
+            left: 10px; 
+            top: 10px; 
+            width: 300px; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            display: none;
+        }
+        .marker { cursor: pointer; }
+        .demo-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 300px;
+            font-size: 14px;
+        }
+        .demo-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #512BD4;
+        }
+    </style>
+</head>
+<body>
+    <div id='map'></div>
+    <div class='demo-info'>
+        <div class='demo-title'>🗺️ EventMap MVP Skeleton</div>
+        <div>Click on the purple pins to see event details!</div>
+        <div style='margin-top: 10px; font-size: 12px; opacity: 0.8;'>
+            This demonstrates the MapLibre GL integration that would be used in the MAUI WebView.
+        </div>
+    </div>
+    <div id='event-panel' class='event-panel'>
+        <h3 id='event-title'></h3>
+        <p id='event-description'></p>
+        <div id='event-venue'></div>
+        <button onclick='closePanel()' style='margin-top: 10px; padding: 8px 16px; background: #512BD4; color: white; border: none; border-radius: 4px; cursor: pointer;'>Close</button>
+    </div>
+    <script>
+        var map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://demotiles.maplibre.org/style.json',
+            center: [-73.9857, 40.7484], // NYC
+            zoom: 12
+        });
+
+        // Sample events for MVP showing the concept
+        var events = [
+            { 
+                lng: -73.9654, lat: 40.7829, 
+                title: 'Jazz Night at Central Park', 
+                description: 'Free outdoor jazz concert featuring local artists', 
+                venue: 'Central Park Bandshell - Central Park, New York, NY',
+                id: 1 
+            },
+            { 
+                lng: -73.9776, lat: 40.7614, 
+                title: 'Street Art Festival', 
+                description: 'Local street artists showcase their work', 
+                venue: null,
+                id: 2 
+            },
+            { 
+                lng: -73.9934, lat: 40.7505, 
+                title: 'Acoustic Coffee Session', 
+                description: 'Intimate acoustic performances with coffee', 
+                venue: 'Brooklyn Coffee House - 123 Brooklyn Ave, Brooklyn, NY',
+                id: 3 
+            }
+        ];
+
+        events.forEach(function(event) {
+            var el = document.createElement('div');
+            el.className = 'marker';
+            el.style.backgroundImage = 'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDOC4xMzQgMiA1IDUuMTM0IDUgOUM1IDEwLjg4NSA1LjI5NSAxMi43MSA1Ljg0OCAxNC4zOTlMMTIgMjJMMTguMTUyIDE0LjM5OUMxOC43MDUgMTIuNzEgMTkgMTAuODg1IDE5IDlDMTkgNS4xMzQgMTUuODY2IDIgMTIgMlpNMTIgMTJDMTAuMzQzIDEyIDkgMTAuNjU3IDkgOUM5IDcuMzQzIDEwLjM0MyA2IDEyIDZDMTMuNjU3IDYgMTUgNy4zNDMgMTUgOUMxNSAxMC42NTcgMTMuNjU3IDEyIDEyIDEyWiIgZmlsbD0iIzUxMkJENCIvPgo8L3N2Zz4K)';
+            el.style.width = '24px';
+            el.style.height = '24px';
+            el.style.backgroundSize = '100%';
+            el.style.cursor = 'pointer';
+
+            el.addEventListener('click', function() {
+                showEventDetails(event);
+            });
+
+            new maplibregl.Marker(el)
+                .setLngLat([event.lng, event.lat])
+                .addTo(map);
+        });
+
+        function showEventDetails(event) {
+            document.getElementById('event-title').textContent = event.title;
+            document.getElementById('event-description').textContent = event.description;
+            var venueDiv = document.getElementById('event-venue');
+            if (event.venue) {
+                venueDiv.innerHTML = '<strong>📍 Venue:</strong> ' + event.venue;
+                venueDiv.style.display = 'block';
+            } else {
+                venueDiv.style.display = 'none';
+            }
+            document.getElementById('event-panel').style.display = 'block';
+        }
+
+        function closePanel() {
+            document.getElementById('event-panel').style.display = 'none';
+        }
+
+        // Add navigation controls
+        map.addControl(new maplibregl.NavigationControl());
+
+        console.log('🗺️ EventMap MVP Skeleton Map Loaded - Click pins to see event details!');
+    </script>
+</body>
+</html>

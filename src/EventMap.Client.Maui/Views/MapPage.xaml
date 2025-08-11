@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="EventMap.Client.Maui.Views.MapPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:EventMap.Client.Maui.ViewModels"
+             x:DataType="vm:MapPageViewModel"
+             Title="EventMap">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Map WebView -->
+        <WebView x:Name="MapWebView" 
+                 Grid.Row="0" 
+                 Grid.Column="0"
+                 Grid.ColumnSpan="{Binding SelectedEvent, Converter={StaticResource IsNullToColumnSpanConverter}, FallbackValue=2}">
+            <WebView.Source>
+                <HtmlWebViewSource Html="{Binding MapHtml}" />
+            </WebView.Source>
+        </WebView>
+
+        <!-- Loading indicator -->
+        <ActivityIndicator Grid.Row="0" 
+                          Grid.Column="0"
+                          Grid.ColumnSpan="2"
+                          IsVisible="{Binding IsLoading}"
+                          IsRunning="{Binding IsLoading}"
+                          VerticalOptions="Center"
+                          HorizontalOptions="Center"
+                          Color="{StaticResource Primary}" />
+
+        <!-- Event Details Panel -->
+        <Border Grid.Row="0" 
+                Grid.Column="1"
+                IsVisible="{Binding SelectedEvent, Converter={StaticResource IsNotNullConverter}}"
+                BackgroundColor="{StaticResource White}"
+                Stroke="{StaticResource Gray300}"
+                StrokeThickness="1"
+                WidthRequest="300"
+                Padding="20">
+            
+            <ScrollView>
+                <StackLayout Spacing="15">
+                    <!-- Close button -->
+                    <Button Text="×"
+                            Command="{Binding CloseEventDetailsCommand}"
+                            HorizontalOptions="End"
+                            WidthRequest="40"
+                            HeightRequest="40"
+                            CornerRadius="20"
+                            FontSize="20"
+                            BackgroundColor="{StaticResource Gray200}"
+                            TextColor="{StaticResource Gray600}" />
+
+                    <!-- Event title -->
+                    <Label Text="{Binding SelectedEvent.Title}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Gray900}" />
+
+                    <!-- Event description -->
+                    <Label Text="{Binding SelectedEvent.Description}"
+                           FontSize="16"
+                           TextColor="{StaticResource Gray600}"
+                           IsVisible="{Binding SelectedEvent.Description, Converter={StaticResource IsNotNullOrEmptyConverter}}" />
+
+                    <!-- Event date/time -->
+                    <StackLayout Orientation="Horizontal" Spacing="5">
+                        <Label Text="📅" FontSize="16" />
+                        <Label Text="{Binding SelectedEvent.StartUtc, StringFormat='{0:MMM dd, yyyy HH:mm}'}"
+                               FontSize="16"
+                               TextColor="{StaticResource Gray700}" />
+                    </StackLayout>
+
+                    <!-- Venue info -->
+                    <StackLayout IsVisible="{Binding SelectedEvent.Venue, Converter={StaticResource IsNotNullConverter}}"
+                                Spacing="5">
+                        <Label Text="📍" FontSize="16" />
+                        <Label Text="{Binding SelectedEvent.Venue.Name}"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Gray800}" />
+                        <Label Text="{Binding SelectedEvent.Venue.Address}"
+                               FontSize="14"
+                               TextColor="{StaticResource Gray600}" />
+                    </StackLayout>
+
+                    <!-- Genres -->
+                    <StackLayout Spacing="5">
+                        <Label Text="🏷️ Genres"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Gray800}" />
+                        <FlexLayout BindableLayout.ItemsSource="{Binding SelectedEvent.Genres}"
+                                   Wrap="Wrap"
+                                   Direction="Row">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <Border BackgroundColor="{StaticResource Secondary}"
+                                           Stroke="{StaticResource Primary}"
+                                           StrokeThickness="1"
+                                           Padding="8,4"
+                                           Margin="2"
+                                           StrokeShape="RoundRectangle 12">
+                                        <Label Text="{Binding}"
+                                              FontSize="12"
+                                              TextColor="{StaticResource Primary}" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                    </StackLayout>
+
+                    <!-- Action buttons -->
+                    <StackLayout Spacing="10" Margin="0,20,0,0">
+                        <Button Text="Add to Favorites" 
+                                BackgroundColor="{StaticResource Primary}"
+                                TextColor="{StaticResource White}" />
+                        <Button Text="Get Directions"
+                                BackgroundColor="{StaticResource Secondary}"
+                                TextColor="{StaticResource Primary}" />
+                    </StackLayout>
+                </StackLayout>
+            </ScrollView>
+        </Border>
+    </Grid>
+</ContentPage>
