@@ -1,0 +1,48 @@
+name: build-and-test
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: eventmap
+          POSTGRES_USER: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Detect solution
+        id: detect
+        run: |
+          echo "found=$(ls -1 **/*.sln 2>/dev/null | wc -l)" >> $GITHUB_OUTPUT
+
+      - name: Skip (no solution yet)
+        if: steps.detect.outputs.found == '0'
+        run: echo "No .sln yet. Waiting for Copilot PR to add projects."
+
+      - name: Restore
+        if: steps.detect.outputs.found != '0'
+        run: dotnet restore
+
+      - name: Build
+        if: steps.detect.outputs.found != '0'
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        if: steps.detect.outputs.found != '0'
+        run: dotnet test --configuration Release --no-build --verbosity normal
