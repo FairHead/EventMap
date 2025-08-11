@@ -1,0 +1,27 @@
+# Visual Studio / .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node/Web (falls später)
+node_modules/
+dist/
+
+# Secrets & Keys
+*.pfx
+secrets.json
+
+# MAUI outputs
+**/Resources/Raw/*.cache
+*.keystore
